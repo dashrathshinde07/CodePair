@@ -73,14 +73,14 @@ footer a {
   margin-top: 20px;
 }
 
-.creteNewBtn {
+.createNewRoomBtn {
   color: #4aed88;
   text-decoration: none;
   border-bottom: 1px solid #4aed88;
   transition: all 03s ease-in-out;
 }
 
-.creteNewBtn:hover,
+.createNewRoomBtn:hover,
 footer a:hover {
   color: #368654;
   border-color: #368654;
