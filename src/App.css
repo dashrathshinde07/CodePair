@@ -59,13 +59,15 @@ footer a {
   font-weight: bold;
 }
 
-.joinBtn , .leaveBtn {
+.joinBtn,
+.leaveBtn {
   background: #4aed88;
   width: 100px;
   margin-left: auto;
 }
 
-.joinBtn:hover, .leaveBtn:hover {
+.joinBtn:hover,
+.leaveBtn:hover {
   background: #2b824c;
 }
 
@@ -92,7 +94,6 @@ footer a:hover {
 .mainWrap {
   display: grid;
   grid-template-columns: 230px 1fr;
-  height: 100vh;
 }
 .aside {
   background: #1c1e29;
@@ -134,8 +135,8 @@ footer a:hover {
 }
 
 .leaveBtn {
- width: 100%;
- margin-top: 20px;
+  width: 100%;
+  margin-top: 20px;
 }
 
 /* Editor.jsx file css */
