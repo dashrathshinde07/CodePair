@@ -1,9 +1,9 @@
 .homePageWrapper {
-  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
+  height: 100vh;
 }
 
 .formWrapper {
@@ -20,7 +20,7 @@ footer {
 }
 
 footer a {
-  color: #4aed88;
+  color: #4aee88;
 }
 
 .inputGroup {
@@ -54,9 +54,9 @@ footer a {
   padding: 10px;
   border-radius: 5px;
   font-size: 16px;
-  cursor: pointer;
-  transition: all 03s ease-in-out;
   font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
 }
 
 .joinBtn,
@@ -76,25 +76,24 @@ footer a {
   margin-top: 20px;
 }
 
-.createNewRoomBtn {
+.createNewBtn {
   color: #4aed88;
   text-decoration: none;
   border-bottom: 1px solid #4aed88;
-  transition: all 03s ease-in-out;
+  transition: all 0.3s ease-in-out;
 }
 
-.createNewRoomBtn:hover,
+.createNewBtn:hover,
 footer a:hover {
   color: #368654;
   border-color: #368654;
 }
 
-/* EditorPage */
-
 .mainWrap {
   display: grid;
   grid-template-columns: 230px 1fr;
 }
+
 .aside {
   background: #1c1e29;
   padding: 16px;
@@ -102,7 +101,6 @@ footer a:hover {
   display: flex;
   flex-direction: column;
 }
-
 .asideInner {
   flex: 1;
 }
@@ -120,7 +118,6 @@ footer a:hover {
   flex-direction: column;
   font-weight: bold;
 }
-
 .userName {
   margin-top: 10px;
 }
@@ -138,9 +135,7 @@ footer a:hover {
   width: 100%;
   margin-top: 20px;
 }
-
-/* Editor.jsx file css */
-.editorwrap {
+.CodeMirror {
   min-height: calc(100vh - 20px);
   font-size: 20px;
   line-height: 1.6;

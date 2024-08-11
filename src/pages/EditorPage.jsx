@@ -1,94 +1,166 @@
-// Importing necessary modules and components
-import React, { useEffect, useRef, useState } from "react"; // React hooks for state and side effects
-import Client from "../components/Client"; // Component to display connected client info
-import Editor from "../components/Editor"; // Code editor component
-import { initSocket } from "../socket"; // Function to initialize socket connection
-import ACTIONS from "../actions"; // Actions (events) for socket communication
+import React, { useState, useRef, useEffect } from 'react';
+import toast from 'react-hot-toast';
+import ACTIONS from '../Actions';
+import Client from '../components/Client';
+import Editor from '../components/Editor';
+import { initSocket } from '../socket';
 import {
-  Navigate,
-  useLocation,
-  useNavigate,
-  useParams,
-} from "react-router-dom"; // React Router hooks for navigation and URL parameters
-import toast from "react-hot-toast"; // Library for displaying notifications
+    useLocation,
+    useNavigate,
+    Navigate,
+    useParams,
+} from 'react-router-dom';
 
+/**
+ * EditorPage component manages the code editor and user clients.
+ * 
+ * Handles:
+ * - Connecting to the socket server
+ * - Managing real-time collaboration
+ * - Copying room ID to clipboard
+ * - Leaving the room
+ */
 const EditorPage = () => {
-  const socketRef = useRef(null); // Ref to hold the socket instance
-  const location = useLocation(); // Access location state passed from the previous page
-  const { roomId } = useParams(); // Extract roomId from the URL
+    const socketRef = useRef(null);
+    const codeRef = useRef('');
+    const location = useLocation();
+    const { roomId } = useParams();
+    const reactNavigator = useNavigate();
+    const [clients, setClients] = useState([]);
 
-  const reactNavigator = useNavigate(); // Hook for navigating to different routes
-  const [clients, setClients] = useState([]); // State to hold the list of connected clients
+    useEffect(() => {
+        const init = async () => {
+            // Initialize socket connection
+            socketRef.current = await initSocket();
 
-  // useEffect to handle component lifecycle
-  useEffect(() => {
-    const init = async () => {
-      socketRef.current = await initSocket(); // Initialize the socket connection
-      socketRef.current.on("connect_error", (err) => handleErrors(err)); // Handle connection errors
-      socketRef.current.on("connect_failed", (err) => handleErrors(err)); // Handle failed connections
+            // Handle socket connection errors
+            socketRef.current.on('connect_error', handleErrors);
+            socketRef.current.on('connect_failed', handleErrors);
 
-      function handleErrors(e) {
-        console.log("socket error", e); // Log the error
-        toast.error("Socket connection failed, try again later."); // Show error notification
-        reactNavigator("/"); // Navigate to the home page on error
-      }
+            // Join the room with the given room ID and username
+            socketRef.current.emit(ACTIONS.JOIN, {
+                roomId,
+                username: location.state?.username,
+            });
 
-      // Emit the JOIN action to the server with roomId and username
-      socketRef.current.emit(ACTIONS.JOIN, {
-        roomId,
-        username: location.state?.username,
-      });
+            // Handle when a user joins the room
+            socketRef.current.on(
+                ACTIONS.JOINED,
+                ({ clients, username, socketId }) => {
+                    if (username !== location.state?.username) {
+                        toast.success(`${username} joined the room.`);
+                        console.log(`${username} joined`);
+                    }
+                    setClients(clients);
+                    // Sync code with the new user
+                    socketRef.current.emit(ACTIONS.SYNC_CODE, {
+                        code: codeRef.current,
+                        socketId,
+                    });
+                }
+            );
 
-      // Listen for the JOINED event from the server
-      socketRef.current.on(
-        ACTIONS.JOINED,
-        ({ clients, username, socketId }) => {
-          console.log("Joined event received", { clients, username, socketId }); // Log the event details
-          if (username !== location.state?.username) {
-            toast.success(`${username} joined the room`); // Show success notification for new users
-          }
-          setClients(clients); // Update the clients state with the received data
+            // Handle when a user disconnects
+            socketRef.current.on(
+                ACTIONS.DISCONNECTED,
+                ({ socketId, username }) => {
+                    toast.success(`${username} left the room.`);
+                    setClients((prev) =>
+                        prev.filter((client) => client.socketId !== socketId)
+                    );
+                }
+            );
+
+            // Handle incoming code changes from other users
+            socketRef.current.on(ACTIONS.CODE_CHANGE, ({ code }) => {
+                if (code !== null) {
+                    codeRef.current = code;
+                    // Update the editor with the received code
+                    document.getElementById('realtimeEditor').value = code;
+                }
+            });
+        };
+
+        const handleErrors = (err) => {
+            console.log('socket error', err);
+            toast.error('Socket connection failed, try again later.');
+            reactNavigator('/');
+        };
+
+        init();
+
+        // Cleanup on component unmount
+        return () => {
+            if (socketRef.current) {
+                socketRef.current.disconnect();
+                socketRef.current.off(ACTIONS.JOINED);
+                socketRef.current.off(ACTIONS.DISCONNECTED);
+                socketRef.current.off(ACTIONS.CODE_CHANGE);
+            }
+        };
+    }, [roomId, reactNavigator, location.state?.username]);
+
+    async function copyRoomId() {
+        try {
+            await navigator.clipboard.writeText(roomId);
+            toast.success('Room ID has been copied to your clipboard');
+        } catch (err) {
+            toast.error('Could not copy the Room ID');
+            console.error(err);
         }
-      );
-    };
-    init(); // Call the init function to start socket connection
+    }
 
-    // Cleanup function to disconnect socket on component unmount
-    return () => {
-      socketRef.current.disconnect();
-    };
-  }, []);
+    function leaveRoom() {
+        reactNavigator('/');
+    }
 
-  if (!location.state) {
-    return <Navigate to="/" />; // Redirect to the home page if location state is not present
-  }
+    if (!location.state) {
+        return <Navigate to="/" />;
+    }
 
-  return (
-    <div className="mainWrap">
-      <div className="aside">
-        <div className="asideInner">
-          <div className="logo">
-            <img className="logoImage" src="/code-sync.png" alt="logo" />
-          </div>
-          <h3>Connected</h3>
-          <div className="clientsList">
-            {clients.map((client) => (
-              <Client
-                className="client"
-                key={client.socketId}
-                username={client.username}
-              />
-            ))}
-          </div>
+    return (
+        <div className="mainWrap">
+            <div className="aside">
+                <div className="asideInner">
+                    <div className="logo">
+                        <img
+                            className="logoImage"
+                            src="/code-sync.png"
+                            alt="logo"
+                        />
+                    </div>
+                    <h3>Connected</h3>
+                    <div className="clientsList">
+                        {clients.map((client) => (
+                            <Client
+                                key={client.socketId}
+                                username={client.username}
+                            />
+                        ))}
+                    </div>
+                </div>
+                <button className="btn copyBtn" onClick={copyRoomId}>
+                    Copy ROOM ID
+                </button>
+                <button className="btn leaveBtn" onClick={leaveRoom}>
+                    Leave
+                </button>
+            </div>
+            <div className="editorWrap">
+                <Editor
+                    socketRef={socketRef}
+                    roomId={roomId}
+                    onCodeChange={(code) => {
+                        codeRef.current = code;
+                        socketRef.current.emit(ACTIONS.CODE_CHANGE, {
+                            roomId,
+                            code,
+                        });
+                    }}
+                />
+            </div>
         </div>
-        <button className="btn copyBtn">Copy Room ID</button>
-        <button className="btn leaveBtn">Leave</button>
-      </div>
-      <div className="editorwrap">
-        <Editor />
-      </div>
-    </div>
-  );
+    );
 };
 
 export default EditorPage;

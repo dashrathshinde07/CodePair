@@ -1,20 +1,37 @@
-// Overview:
-// This code sets up a Socket.IO client connection to a server. It exports an asynchronous function `initSocket` 
-// which initializes and returns a Socket.IO client instance configured with specific options.
-
-import { io } from "socket.io-client"; // Import the `io` function from the `socket.io-client` package to establish a WebSocket connection.
+import { io } from 'socket.io-client';
 
 export const initSocket = async () => {
-  // Asynchronous function to initialize the Socket.IO client.
+    const options = {
+        reconnection: true, // Allow reconnections
+        reconnectionAttempts: Infinity, // Try to reconnect indefinitely
+        reconnectionDelay: 1000, // Delay between reconnections
+        timeout: 10000, // Connection timeout
+        transports: ['websocket'], // Use WebSocket transport
+    };
 
-  const options = {
-    "force new connection": true, // Option to force a new connection to the server, even if one already exists.
-    reconnectionAttempts: "Infinity", // Set the number of reconnection attempts to infinite, meaning it will keep trying to reconnect indefinitely if disconnected.
-    timeout: 10000, // Set the connection timeout to 10,000 milliseconds (10 seconds). If the client cannot connect within this time, it will fail.
-    transports: ["websocket"], // Specify that WebSocket is the only transport method to be used for communication.
-  };
+    try {
+        // Ensure the backend URL is set
+        const backendUrl = process.env.REACT_APP_BACKEND_URL;
+        if (!backendUrl) {
+            throw new Error('REACT_APP_BACKEND_URL is not defined');
+        }
 
-  // Return the Socket.IO client instance initialized with the specified options.
-  return io(process.env.REACT_APP_BACKEND_URL, options); 
-  // `process.env.REACT_APP_BACKEND_URL` should contain the URL of the backend server to which the client will connect.
+        // Create and return the socket connection
+        const socket = io(backendUrl, options);
+
+        // Log successful connection
+        socket.on('connect', () => {
+            console.log('Successfully connected to server');
+        });
+
+        // Handle connection errors
+        socket.on('connect_error', (err) => {
+            console.error('Connection error:', err);
+        });
+
+        return socket;
+    } catch (error) {
+        console.error('Socket initialization error:', error);
+        throw error;
+    }
 };
