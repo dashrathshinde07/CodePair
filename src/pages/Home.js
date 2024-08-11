@@ -1,34 +1,33 @@
+// Overview:
+// This component provides the home page where users can create a new room or join an existing one.
+
 import React, { useState } from 'react';
 import { v4 as uuidV4 } from 'uuid';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
-/**
- * Home component provides a form for users to join or create a room.
- * 
- * Handles:
- * - Creating a new room
- * - Joining an existing room with a ROOM ID
- */
 const Home = () => {
-    const navigate = useNavigate();
-    const [roomId, setRoomId] = useState('');
-    const [username, setUsername] = useState('');
+    const navigate = useNavigate(); // Navigation helper
 
+    const [roomId, setRoomId] = useState(''); // State for Room ID
+    const [username, setUsername] = useState(''); // State for Username
+
+    // Function to create a new room
     const createNewRoom = (e) => {
         e.preventDefault();
-        const id = uuidV4();
-        setRoomId(id);
-        setUsername('');
+        const id = uuidV4(); // Generate a unique ID
+        setRoomId(id); // Set the Room ID
         toast.success('Created a new room');
     };
 
+    // Function to join a room
     const joinRoom = () => {
         if (!roomId || !username) {
-            toast.error('ROOM ID & username are required');
+            toast.error('ROOM ID & username is required');
             return;
         }
 
+        // Redirect to the editor page
         navigate(`/editor/${roomId}`, {
             state: {
                 username,
@@ -36,6 +35,7 @@ const Home = () => {
         });
     };
 
+    // Handle Enter key press for input fields
     const handleInputEnter = (e) => {
         if (e.code === 'Enter') {
             joinRoom();
@@ -47,7 +47,7 @@ const Home = () => {
             <div className="formWrapper">
                 <img
                     className="homePageLogo"
-                    src="/code-sync.png"
+                    src="/codeparifinal.png"
                     alt="code-sync-logo"
                 />
                 <h4 className="mainLabel">Paste invitation ROOM ID</h4>
@@ -59,7 +59,6 @@ const Home = () => {
                         onChange={(e) => setRoomId(e.target.value)}
                         value={roomId}
                         onKeyUp={handleInputEnter}
-                        aria-label="Room ID"
                     />
                     <input
                         type="text"
@@ -68,22 +67,28 @@ const Home = () => {
                         onChange={(e) => setUsername(e.target.value)}
                         value={username}
                         onKeyUp={handleInputEnter}
-                        aria-label="Username"
                     />
                     <button className="btn joinBtn" onClick={joinRoom}>
                         Join
                     </button>
                     <span className="createInfo">
-                        If you don't have an invite, create &nbsp;
-                        <button
+                        If you don't have an invite then create &nbsp;
+                        <a
                             onClick={createNewRoom}
+                            href=""
                             className="createNewBtn"
                         >
                             new room
-                        </button>
+                        </a>
                     </span>
                 </div>
             </div>
+            <footer>
+                <h4>
+                    Built with 💛 &nbsp; by &nbsp;
+                    <a href="https://github.com/dashrathshinde07">Dashrath Shinde</a>
+                </h4>
+            </footer>
         </div>
     );
 };

@@ -1,33 +1,13 @@
-/*
-  SUMMARY:
-  This file defines a set of constants that represent various actions in a 
-  collaborative coding environment. These actions include joining a session, 
-  notifying when a user has joined or left, handling code changes, and syncing 
-  code across users. The ACTIONS object is exported for use in other parts 
-  of the application.
-*/
+// Overview:
+// This file defines and exports the various actions used in the application for socket communication.
 
-// Define an object to hold action types for the collaborative environment
 const ACTIONS = {
-    // Action for when a user wants to join a session
-    JOIN: "join",
-  
-    // Action sent when a user has successfully joined a session
-    JOINED: "joined",
-  
-    // Action for when a user disconnects from the session
-    DISCONNECTED: "disconnected",
-  
-    // Action for when there is a change in the code (e.g., typing)
-    CODE_CHANGE: "code-change",
-  
-    // Action for syncing the code with other users in the session
-    SYNC_CODE: "sync-code",
-  
-    // Action for when a user leaves the session
-    LEAVE: "leave",
-  };
-  
-  // Export the ACTIONS object so it can be used in other files
-  module.exports = ACTIONS;
-  
+    JOIN: 'join',              // Action for joining a room
+    JOINED: 'joined',          // Action triggered when a user joins
+    DISCONNECTED: 'disconnected', // Action for when a user disconnects
+    CODE_CHANGE: 'code-change',   // Action for code changes
+    SYNC_CODE: 'sync-code',       // Action to sync code with a new user
+    LEAVE: 'leave',               // Action for leaving a room
+};
+
+module.exports = ACTIONS;
