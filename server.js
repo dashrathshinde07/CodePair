@@ -6,7 +6,7 @@ const app = express();
 const http = require('http');
 const path = require('path');
 const { Server } = require('socket.io');
-const ACTIONS = require('./src/Actions');
+const ACTIONS = require('./src/actions.js');
 
 
 // Create an HTTP server and a Socket.IO server

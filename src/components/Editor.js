@@ -10,7 +10,7 @@ import 'codemirror/theme/dracula.css';               // Import Dracula theme for
 import 'codemirror/mode/javascript/javascript';      // Import JavaScript mode for syntax highlighting
 import 'codemirror/addon/edit/closetag';             // Import addon to auto-close HTML tags
 import 'codemirror/addon/edit/closebrackets';        // Import addon to auto-close brackets
-import ACTIONS from '../Actions';                    // Import action constants for Socket.io events
+import ACTIONS from '../actions.js';                    // Import action constants for Socket.io events
 
 // Editor component initializes the code editor and handles real-time code synchronization
 const Editor = ({ socketRef, roomId, onCodeChange }) => {
